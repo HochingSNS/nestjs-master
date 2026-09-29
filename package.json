@@ -30,6 +30,9 @@
     "generate:clickhouse-types": "hypequery generate -o \"libs/application/src/integrations/cpms-pcr-reader/schemas/database.schema.ts\" --tables PCR,BONUS_PCR,dynamicJackpotRecord"
   },
   "dependencies": {
+    "@alicloud/dysmsapi20180501": "^1.0.10",
+    "@alicloud/openapi-client": "^0.4.15",
+    "@alicloud/tea-util": "^1.4.11",
     "@clickhouse/client": "^1.18.2",
     "@clickhouse/client-common": "^1.23.0",
     "@hypequery/clickhouse": "^2.5.4",
