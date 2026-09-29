@@ -1,22 +1,13 @@
 import { ViberAccount } from '../models/viber-account.model';
+import { MessageType } from './viber-log.model';
 
-export const RouteType = {
-  OTP: 'OTP',
-  MARKETING: 'MKT',
-  NOTIFICATION: 'NOTIF',
-} as const;
-export const RouteTypes = Object.values(RouteType);
+export type RouteType = MessageType;
+export const RouteType = MessageType;
 
-export const RouteStrategy = {
-  ROUND_ROBIN: 'RB',
-  WEIGHTED_ROUND_ROBIN: 'WRB',
-} as const;
-export const RouteStrategies = Object.values(RouteStrategy);
+export const RouteStrategy = ['RoundRobin', 'WeightRobin'] as const;
+export type RouteStrategy = (typeof RouteStrategy)[number];
 
-export type RouteType = (typeof RouteType)[keyof typeof RouteType];
-export type RouteStrategy = (typeof RouteStrategy)[keyof typeof RouteStrategy];
-
-export type RouteAccount = Pick<ViberAccount, 'authMethod' | 'credential' | 'providerCode'> & {
+export type RouteAccount = ViberAccount & {
   isEnabled: string;
   weight: number;
 };
@@ -24,6 +15,7 @@ export type RouteAccount = Pick<ViberAccount, 'authMethod' | 'credential' | 'pro
 export interface ViberRouteConfig {
   type: RouteType;
   platformId: string;
+  senderId: string;
   strategy: RouteStrategy;
   accounts: RouteAccount[];
 }

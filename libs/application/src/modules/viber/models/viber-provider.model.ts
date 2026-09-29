@@ -1,11 +1,5 @@
-export const ViberProviderCode = {
-  PROMOTEXTER: 'PROMOTEXTER',
-  PROMOTEXTER_APIX: 'PROMOTEXTER_APIX',
-  INFOBIP: 'INFOBIP',
-} as const;
-
-export type ViberProviderCode = (typeof ViberProviderCode)[keyof typeof ViberProviderCode];
-export const ViberProviderCodes = Object.values(ViberProviderCode);
+export const ViberProviderCode = ['Promotexter', 'PromotexterApix', 'Infobip'] as const;
+export type ViberProviderCode = (typeof ViberProviderCode)[number];
 
 export interface ViberProvider {
   code: ViberProviderCode;

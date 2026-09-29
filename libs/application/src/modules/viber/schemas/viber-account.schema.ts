@@ -1,43 +1,65 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
-import { AuthMethod, AuthMethods } from '../models/viber-account.model';
-import { ViberProviderCode, ViberProviderCodes } from '../models/viber-provider.model';
+import { HydratedDocument, DiscriminatorSchema } from 'mongoose';
+import { ViberProviderCode } from '../models/viber-provider.model';
+import { AccountType } from '../models/viber-account.model';
 
-@Schema({ _id: false })
-export class Credential {
-  @Prop()
-  apiKey: string;
+export type ViberAccountDocument = HydratedDocument<ViberAccount>;
 
-  @Prop()
-  apiSecret: string;
-
-  @Prop()
-  url: string;
-}
-export const CredentialSchema = SchemaFactory.createForClass(Credential);
-
-@Schema({ collection: 'viber_accounts', timestamps: true })
-export class ViberAccount {
-  @Prop({ required: true })
+@Schema({ collection: 'viber_accounts', timestamps: true, discriminatorKey: 'type' })
+export class ViberAccountBase {
+  @Prop({ type: String })
   name: string;
 
-  @Prop({ required: true, type: String, enum: ViberProviderCodes })
+  @Prop({ type: String })
+  url: string;
+
+  @Prop({ type: String, enum: ViberProviderCode, required: true })
   providerCode: ViberProviderCode;
 
-  @Prop({ required: true, type: String, enum: AuthMethods })
-  authMethod: AuthMethod;
-
-  @Prop({ type: CredentialSchema, required: true })
-  credential: Credential;
-
-  @Prop({ type: [String], required: true, default: [] })
+  @Prop({ type: [String] })
   senderIds: string[];
 
-  @Prop({ type: Date })
+  type: AccountType;
   createdAt: Date;
-
-  @Prop({ type: Date })
   updatedAt: Date;
 }
 
-export const ViberAccountSchema = SchemaFactory.createForClass(ViberAccount);
+export const ViberAccountBaseSchema = SchemaFactory.createForClass(ViberAccountBase);
+
+@Schema()
+export class ViberAccountApiToken implements ViberAccountBase {
+  type: 'ApiToken';
+
+  @Prop({ type: String })
+  apiToken: string;
+
+  name: string;
+  providerCode: ViberProviderCode;
+  url: string;
+  senderIds: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export const ViberAccountApiTokenSchema = SchemaFactory.createForClass(ViberAccountApiToken);
+
+@Schema()
+export class ViberAccountApiKeySecret implements ViberAccountBase {
+  type: 'ApiKeySecret';
+
+  @Prop({ type: String })
+  apiKey: string;
+
+  @Prop({ type: String })
+  apiSecret: string;
+
+  name: string;
+  providerCode: ViberProviderCode;
+  url: string;
+  senderIds: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export const ViberAccountApiKeySecretSchema = SchemaFactory.createForClass(ViberAccountApiKeySecret);
+export type ViberAccount = ViberAccountApiKeySecret | ViberAccountApiToken;

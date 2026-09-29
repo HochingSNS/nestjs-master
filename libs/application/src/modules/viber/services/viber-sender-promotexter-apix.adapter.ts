@@ -16,10 +16,11 @@ export class ViberSenderPromotexterApix implements ViberSender {
       baseUrl: 'https://apix.promotexter.com',
     });
   }
+
   async sendViberOtp(message: ViberOtp): Promise<ViberMessage> {
     return {
-      referenceId: '1',
-      messageId: '1',
+      messageId: '',
+      referenceId: '',
     };
   }
 }

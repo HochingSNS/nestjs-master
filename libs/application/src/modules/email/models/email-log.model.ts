@@ -1,3 +1,5 @@
+import { EmailProviderCode } from './email-provider.model';
+
 export const RequestStatus = ['Processing', 'Success', 'Failed'] as const;
 export type RequestStatus = (typeof RequestStatus)[number];
 
@@ -7,15 +9,15 @@ export type DeliveryStatus = (typeof DeliveryStatus)[number];
 export const MessageType = ['Otp', 'Mkt', 'Notif'] as const;
 export type MessageType = (typeof MessageType)[number];
 
-export interface ViberLog {
+export interface EmailLog {
   id: string;
-  providerCode: string;
+  providerCode: EmailProviderCode;
   type: MessageType;
   refId: string;
   content: string;
   platformId?: string;
   playerId?: string;
-  phoneNo: string; // masked string
+  emailAddress: string;
   requestStatus: RequestStatus;
   deliveryStatus: DeliveryStatus;
   campaignId?: string;
@@ -23,9 +25,3 @@ export interface ViberLog {
   createdAt: Date;
   updatedAt: Date;
 }
-export interface ViberLogAdminView {}
-
-export type ViberLogPublicView = Pick<
-  ViberLog,
-  'id' | 'content' | 'campaignId' | 'campaignSender' | 'requestStatus' | 'deliveryStatus'
->;

@@ -1,34 +1,34 @@
-import { ViberProviderCode } from '../models/viber-provider.model';
+import { ExtractStrict } from 'type-fest';
+import { ViberProviderCode } from './viber-provider.model';
 
-export const AuthMethod = {
-  API_KEY: 'API_KEY', // a pair of api key and secret
-  API_TOKEN: 'API_TOKEN', // one single auth token
+export const AccountType = ['ApiToken', 'ApiKeySecret'] as const;
+export type AccountType = (typeof AccountType)[number];
+
+export const ProviderTransportMethod: Record<ViberProviderCode, AccountType[]> = {
+  Infobip: ['ApiToken'],
+  Promotexter: ['ApiToken'],
+  PromotexterApix: ['ApiKeySecret', 'ApiToken'],
 } as const;
 
-export type AuthMethod = (typeof AuthMethod)[keyof typeof AuthMethod];
-export const AuthMethods = Object.values(AuthMethod);
-
-export type Credential = {
-  apiKey: string;
-  apiSecret: string;
-  url: string;
-};
-
-export type CredentialApiKey = {
-  apiKey: string;
-  apiSecret: string;
-};
-export type CredentialApiToken = {
-  token: string;
-};
-
-export interface ViberAccount {
+export interface ViberAccountBase {
   id: string;
   name: string;
   providerCode: ViberProviderCode;
-  authMethod: AuthMethod;
-  credential: Credential;
   senderIds: string[];
   createdAt: Date;
+  url: string;
   updatedAt: Date;
 }
+
+export interface ViberAccountApiKey extends ViberAccountBase {
+  type: ExtractStrict<AccountType, 'ApiToken'>;
+  apiToken: string;
+}
+
+export interface ViberAccountApiKeySecret extends ViberAccountBase {
+  type: ExtractStrict<AccountType, 'ApiKeySecret'>;
+  apiKey: string;
+  apiSecret: string;
+}
+
+export type ViberAccount = ViberAccountApiKey | ViberAccountApiKeySecret;

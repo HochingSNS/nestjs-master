@@ -82,7 +82,6 @@ export class PromotexterBase {
       }
     }
 
-    const queryString = new URLSearchParams(requestQuery).toString();
     try {
       const response = await this.client.request<T>({
         url: endpoint,

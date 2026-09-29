@@ -1,16 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-import { ViberProviderCode, ViberProviderCodes } from '../models/viber-provider.model';
-import { DeliveryStatus, RequestStatus, MessageType, MessageTypes } from '../models/viber-log.model';
+import { HydratedDocument, Types } from 'mongoose';
+import { ViberProviderCode } from '../models/viber-provider.model';
+import { DeliveryStatus, RequestStatus, MessageType } from '../models/viber-log.model';
 
 export type ViberLogDocument = HydratedDocument<ViberLog>;
 
 @Schema({ collection: 'viber_logs', timestamps: true })
 export class ViberLog {
-  @Prop({ type: String, enum: ViberProviderCodes, required: true })
+  @Prop({ type: String, enum: ViberProviderCode, required: true })
   providerCode: ViberProviderCode;
 
-  @Prop({ type: String, enum: MessageTypes, required: true })
+  @Prop({ type: String, enum: MessageType, required: true })
   type: MessageType;
 
   @Prop({ type: String })
@@ -28,11 +28,11 @@ export class ViberLog {
   @Prop({ type: String })
   phoneNo?: string;
 
-  @Prop({ enum: RequestStatus, default: RequestStatus.PROCESSING })
-  requestStatus: string;
+  @Prop({ type: String, enum: RequestStatus, default: 'Processing' satisfies RequestStatus })
+  requestStatus: RequestStatus;
 
-  @Prop({ enum: DeliveryStatus, default: DeliveryStatus.PENDING })
-  deliveryStatus: string;
+  @Prop({ type: String, enum: DeliveryStatus, default: 'Pending' satisfies DeliveryStatus })
+  deliveryStatus: DeliveryStatus;
 
   @Prop({ type: String, required: false })
   campaignId?: string;
