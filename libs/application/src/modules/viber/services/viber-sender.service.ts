@@ -10,7 +10,7 @@ export class ViberSenderService {
 
   async dispatchViberMessage(message: ViberOtp, account: ViberAccount) {
     const sender = ViberSenderFactory.createSender(account);
-    return sender.sendViberOtp(message);
+    return await sender.sendViberOtp(message);
   }
 
   async acceptOtpRequest(message: ViberOtp, platformId: string) {
