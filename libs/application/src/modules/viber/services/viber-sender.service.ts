@@ -3,41 +3,50 @@ import { ViberSenderFactory } from './viber-sender.factory';
 import { ViberOtp } from '../models/viber-message.model';
 import { ViberAccount } from '../models/viber-account.model';
 import { ViberRouteConfigManager } from './viber-route-config.manager';
-import { Chance } from 'chance';
+import { ViberRouterService } from './viber-router.service';
 @Injectable()
 export class ViberSenderService {
-  constructor(private readonly configManager: ViberRouteConfigManager) {}
+  constructor(
+    private readonly configManager: ViberRouteConfigManager,
+    private readonly routerService: ViberRouterService,
+  ) {}
 
-  async dispatchViberMessage(message: ViberOtp, account: ViberAccount) {
+  async sendViberOtp(message: ViberOtp, account: ViberAccount) {
     const sender = ViberSenderFactory.createSender(account);
-    return sender.sendViberOtp(message);
+    return sender.sendOtp(message);
   }
 
+  private async dispatchViberMessage() {}
+
   async acceptOtpRequest(message: ViberOtp, platformId: string) {
-    // validate dto
-    // retrieve config
+    try {
+      // validate dto
 
-    const routeConfig = await this.configManager.getRouteConfig('OTP', platformId);
-    // selected config (routing)
-    if (routeConfig) {
-      const accounts = routeConfig.accounts.filter((acc) => acc.isEnabled);
+      // Get player phone number from player service
+      const phoneNo = '63232323232';
 
-      if (accounts.length > 0) {
-        const chance = new Chance();
-        const routeTo = chance.weighted(
-          accounts,
-          accounts.map((acc) => acc.weight),
-        );
-      }
+      // retrieve available config
+      const routeConfig = await this.configManager.getRouteConfig('Otp', platformId);
+
+      if (!routeConfig) throw new Error('No route config is available');
+
+      // determine destination route provider
+      const routeTo = this.routerService.routeTo(routeConfig);
+
+      if (!routeTo) throw new Error('System cannot determine destination route');
+
+      // publish to topic
+      await this.dispatchViberMessage();
+    } catch (err) {
+      await this.publishProcessedMessage();
+      throw new Error('Message has failed');
     }
-
-    // publish to topic
   }
 
   async acceptMktRequest() {
     // validate dto
     // retrieve config
-    const routes = this.configManager.getRouteConfig('NOTIF', '50');
+    const routes = this.configManager.getRouteConfig('Mkt', '50');
 
     // selected config (routing)
     // publish to topic
@@ -46,12 +55,11 @@ export class ViberSenderService {
   async acceptNotifRequest() {
     // validate dto
     // retrieve config
-    const routes = this.configManager.getRouteConfig('NOTIF', '50');
+    const routes = this.configManager.getRouteConfig('Notif', '50');
 
     // selected config (routing)
     // publish to topic
   }
 
-  private async publishNewMessage() {}
   private async publishProcessedMessage() {}
 }

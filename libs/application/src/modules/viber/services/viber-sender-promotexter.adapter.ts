@@ -1,6 +1,6 @@
 import { PromotexterApix } from '@application/integrations/promotexter';
 import { ViberSender } from '../interfaces/viber-sender.port';
-import { ViberMessage } from '../models/viber-message.model';
+import { SendViberResult } from '../models/viber-message.model';
 import { ViberAccount } from '../schemas/viber-account.schema';
 import { ViberOtp } from '../models/viber-message.model';
 
@@ -18,7 +18,7 @@ export class ViberSenderPromotexter implements ViberSender {
     });
   }
 
-  async sendViberOtp(message: ViberOtp): Promise<ViberMessage> {
+  async sendOtp(message: ViberOtp): Promise<SendViberResult> {
     const result = await this.api.sendViberOtp({
       from: 'casino plus',
       to: '630339434343',

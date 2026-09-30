@@ -8,6 +8,7 @@
   "nest-cli": "11.0.24",
   "scripts": {
     "build": "nest build",
+    "kp": "kill-port",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "dev:messaging-admin": "nest start messaging-admin --tsc --watch --debug 9267",
     "dev:worker": "nest start worker --tsc --watch --debug 9228",
@@ -100,6 +101,7 @@
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^17.0.0",
     "jest": "^30.0.0",
+    "kill-port": "^2.0.1",
     "prettier": "^3.4.2",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",

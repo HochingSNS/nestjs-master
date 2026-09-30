@@ -39,6 +39,9 @@ export class ViberLog {
 
   @Prop({ type: String })
   campaignSender?: string;
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const ViberLogSchema = SchemaFactory.createForClass(ViberLog);

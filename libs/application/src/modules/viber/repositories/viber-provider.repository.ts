@@ -12,7 +12,7 @@ export class ViberProviderRepository {
     private model: Model<ViberProviderModel>,
   ) {}
 
-  async getAll(): Promise<ViberProvider[]> {
+  async findProviders(): Promise<ViberProvider[]> {
     const providers = await this.model.find().lean();
 
     return providers.map((acc) => ({
@@ -21,17 +21,17 @@ export class ViberProviderRepository {
     }));
   }
 
-  async add(provider: ViberProvider): Promise<void> {
+  async addProvider(provider: ViberProvider): Promise<void> {
     await this.model.insertOne(provider);
   }
 
-  async update(id: string, provider: Partial<ViberProvider>): Promise<ViberProvider | null> {
+  async updateProvider(id: string, provider: Partial<ViberProvider>): Promise<ViberProvider | null> {
     const objId = new Types.ObjectId(id);
     const docBeforeUpdate = await this.model.findOneAndUpdate({ _id: objId }, provider).lean();
     return docBeforeUpdate || null;
   }
 
-  async findOne(code: ViberProviderCode): Promise<ViberProvider | null> {
+  async findProvider(code: ViberProviderCode): Promise<ViberProvider | null> {
     const provider = await this.model.findOne({
       code,
     });

@@ -7,9 +7,9 @@ import { ViberSenderPromotexter } from './viber-sender-promotexter.adapter';
 export class ViberSenderFactory {
   static createSender(account: ViberAccount): ViberSender {
     switch (account.providerCode) {
-      case ViberProviderCode.PROMOTEXTER_APIX:
+      case 'Promotexter':
         return new ViberSenderPromotexter(account);
-      case ViberProviderCode.PROMOTEXTER:
+      case 'PromotexterApix':
         return new ViberSenderPromotexterApix(account);
       default:
         throw new Error(`Invalid Viber Provider: ${account.providerCode}`);

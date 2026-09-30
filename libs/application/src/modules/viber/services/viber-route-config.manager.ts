@@ -1,8 +1,8 @@
 import { CACHE_TOKEN } from '@application/connnections';
 import { Injectable, Inject, OnModuleDestroy, Logger } from '@nestjs/common';
 import Redis from 'ioredis';
-import { ViberRouteConfig } from '../schemas/viber-route-config.schema';
-import { RouteType } from '../models/viber-route-config.model';
+import { RouteType, ViberRouteConfigWithAccount } from '../models/viber-route-config.model';
+import { ViberRouteConfigRepository } from '../repositories/viber-route-config.repository';
 
 const ConfigChannel = {
   Otp: 'viber.route-config.otp.updated',
@@ -10,15 +10,21 @@ const ConfigChannel = {
   Notif: 'viber.route-config.notif.updated',
 } as const;
 
+type RouteConfigMap = Map<RouteType, ViberRouteConfigWithAccount>;
+type PlatformConfigMap = Map<string, RouteConfigMap>;
 @Injectable()
+
+/**
+ * This is config manager that sync config update to service local memory in real-time
+ */
 export class ViberRouteConfigManager implements OnModuleDestroy {
-  /**
-   * Map<platformId, Map<RouteType, ViberRouteConfig>
-   */
-  private configMap: Map<string, Map<RouteType, ViberRouteConfig>>;
+  private configMap: PlatformConfigMap;
   private logger = new Logger(ViberRouteConfigManager.name);
 
-  constructor(@Inject(CACHE_TOKEN.PRIMARY) private readonly redis: Redis) {
+  constructor(
+    @Inject(CACHE_TOKEN.PRIMARY) private readonly redis: Redis,
+    private readonly routeConfigRepo: ViberRouteConfigRepository,
+  ) {
     redis.subscribe(ConfigChannel.Mkt);
     redis.subscribe(ConfigChannel.Otp);
     redis.subscribe(ConfigChannel.Notif);
@@ -30,21 +36,19 @@ export class ViberRouteConfigManager implements OnModuleDestroy {
     try {
       switch (channel) {
         case ConfigChannel.Mkt:
-          await this.updateConfig('MKT', platformId);
+          await this.findAndUpdateConfigMemory('Mkt', platformId);
           break;
         case ConfigChannel.Otp:
-          await this.updateConfig('OTP', platformId);
+          await this.findAndUpdateConfigMemory('Otp', platformId);
           break;
         case ConfigChannel.Notif:
-          await this.updateConfig('NOTIF', platformId);
+          await this.findAndUpdateConfigMemory('Notif', platformId);
           break;
       }
     } catch (err) {
-      this.logger;
+      this.logger.error({ err }, 'Error syncing viber route config');
     }
   }
-
-  private async updateConfig(routeType: RouteType, platformId: string) {}
 
   async getRouteConfig(routeType: RouteType, platformId: string) {
     const routeConfigMemory = this.configMap.get(platformId)?.get(routeType);
@@ -56,8 +60,14 @@ export class ViberRouteConfigManager implements OnModuleDestroy {
 
   private async findAndUpdateConfigMemory(routeType: RouteType, platformId: string) {
     // retrieve from repository
+    const config = await this.routeConfigRepo.findConfig(routeType, platformId);
+    if (!config) return null;
+
     // update local config
-    // return local config
+    const platformConfig = this.configMap.get(platformId) ?? new Map<RouteType, ViberRouteConfigWithAccount>();
+    platformConfig.set(routeType, config);
+    this.configMap.set(platformId, platformConfig);
+    return config;
   }
 
   async onModuleDestroy() {

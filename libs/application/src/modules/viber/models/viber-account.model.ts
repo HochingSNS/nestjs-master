@@ -20,7 +20,7 @@ export interface ViberAccountBase {
   updatedAt: Date;
 }
 
-export interface ViberAccountApiKey extends ViberAccountBase {
+export interface ViberAccountApiToken extends ViberAccountBase {
   type: ExtractStrict<AccountType, 'ApiToken'>;
   apiToken: string;
 }
@@ -31,4 +31,4 @@ export interface ViberAccountApiKeySecret extends ViberAccountBase {
   apiSecret: string;
 }
 
-export type ViberAccount = ViberAccountApiKey | ViberAccountApiKeySecret;
+export type ViberAccount = ViberAccountApiToken | ViberAccountApiKeySecret;

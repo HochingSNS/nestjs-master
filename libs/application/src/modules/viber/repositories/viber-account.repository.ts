@@ -7,7 +7,7 @@ import {
   ViberAccountApiKeySecret as ViberAccountApiKeySecretModel,
   type ViberAccount as ViberAccountModel,
 } from '../schemas/viber-account.schema';
-import { ViberAccount, ViberAccountApiKey } from '../models/viber-account.model';
+import { ViberAccount, ViberAccountApiKeySecret, ViberAccountApiToken } from '../models/viber-account.model';
 import { MONGO_CONN_NAME } from '@application/connnections';
 import { Except } from 'type-fest';
 import { Lean } from '@framework/mongoose';
@@ -20,7 +20,10 @@ export class ViberAccountRepository {
     private accountModel: Model<ViberAccountBaseModel>,
 
     @InjectModel(ViberAccountApiTokenModel.name, MONGO_CONN_NAME.PRIMARY)
-    private accountApiKeyModel: Model<ViberAccountApiTokenModel>,
+    private accountApiTokenModel: Model<ViberAccountApiTokenModel>,
+
+    @InjectModel(ViberAccountApiKeySecretModel.name, MONGO_CONN_NAME.PRIMARY)
+    private accountApiKeySecretModel: Model<ViberAccountApiKeySecretModel>,
   ) {}
 
   async getAllAccount(): Promise<ViberAccount[]> {
@@ -28,29 +31,14 @@ export class ViberAccountRepository {
     return accounts.map((acc) => ({ ...acc, id: acc._id.toString() }));
   }
 
-  async addApiKeyAccount(account: Except<ViberAccountApiKey, 'id' | 'createdAt' | 'updatedAt'>) {
-    const acc = new this.accountApiKeyModel({
-      name: account.name,
-      senderIds: account.senderIds,
-      providerCode: account.providerCode,
-      apiKey: account.apiToken,
-      url: account.url,
-      type: 'ApiToken',
-    });
-
+  async addApiKeySecretAcc(account: Except<ViberAccountApiKeySecret, 'id' | 'createdAt' | 'updatedAt'>) {
+    const acc = new this.accountApiKeySecretModel(account);
+    acc.type = 'ApiKeySecret';
     await acc.save();
   }
-
-  async onModuleInit() {
-    await this.addApiKeyAccount({
-      type: 'ApiToken',
-      apiToken: 'ewewewew',
-      providerCode: 'Infobip',
-      name: 'test account laide',
-      url: 'https://blastoice.com',
-      senderIds: ['CasinoPlus'],
-    });
-    const accounts = await this.accountApiKeyModel.find().lean<Lean<ViberAccountModel>[]>();
-    this.logger.log({ accounts }, 'accounts');
+  async addApiTokenAcc(account: Except<ViberAccountApiToken, 'id' | 'createdAt' | 'updatedAt'>) {
+    const acc = new this.accountApiTokenModel(account);
+    acc.type = 'ApiToken';
+    acc.save();
   }
 }

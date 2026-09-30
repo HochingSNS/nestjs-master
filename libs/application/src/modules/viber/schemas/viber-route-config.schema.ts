@@ -1,13 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { RouteStrategy, RouteType } from '../models/viber-route-config.model';
+import { ViberAccountBase } from './viber-account.schema';
 
 export type ViberRouteConfigDocument = HydratedDocument<ViberRouteConfig>;
 
 @Schema({ _id: false })
-export class Account {
-  @Prop({ type: Types.ObjectId, required: true })
-  accountId: Types.ObjectId;
+export class RouteAccount {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, required: true, ref: ViberAccountBase.name })
+  id: mongoose.Schema.Types.ObjectId;
 
   @Prop({ type: Boolean, required: true })
   isEnabled: boolean;
@@ -16,20 +17,36 @@ export class Account {
   weight: number;
 }
 
-export const AccountSchema = SchemaFactory.createForClass(Account);
+export const RouteAccountSchema = SchemaFactory.createForClass(RouteAccount);
 
-@Schema({ collection: 'viber_route_configs' })
+export enum RouteAccountVirtualField {
+  AccountDetails = 'accountDetails',
+}
+RouteAccountSchema.virtual(RouteAccountVirtualField.AccountDetails, {
+  ref: ViberAccountBase.name,
+  localField: 'id',
+  foreignField: '_id',
+  justOne: true,
+});
+
+@Schema({ collection: 'viber_route_configs', timestamps: true })
 export class ViberRouteConfig {
-  @Prop({ type: String, enum: RouteType })
+  @Prop({ type: String, enum: RouteType, required: true })
   type: RouteType;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   platformId: string;
 
   @Prop({ type: String, enum: RouteStrategy, required: true })
   strategy: RouteStrategy;
 
-  @Prop({ type: AccountSchema, required: true })
-  accounts: Account[];
+  @Prop({ type: String, required: true })
+  senderId: string;
+
+  @Prop({ type: [RouteAccountSchema], required: true })
+  accounts: RouteAccount[];
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 export const ViberRouteConfigSchema = SchemaFactory.createForClass(ViberRouteConfig);

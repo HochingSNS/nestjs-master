@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { ViberProviderCodes, ViberProvider } from '../models/viber-provider.model';
+import { ViberProviderCode, ViberProvider } from '../models/viber-provider.model';
 import { ViberProviderRepository } from '../repositories/viber-provider.repository';
 
 @Injectable()
@@ -8,26 +8,26 @@ export class ViberProviderService {
 
   constructor(private readonly providerRepo: ViberProviderRepository) {}
   async addProvider(provider: ViberProvider) {
-    const existingProvider = await this.providerRepo.findOne(provider.code);
+    const existingProvider = await this.providerRepo.findProvider(provider.code);
 
     if (existingProvider) {
       throw new BadRequestException('Provider must be unique');
     }
 
-    await this.providerRepo.add(provider);
+    await this.providerRepo.addProvider(provider);
   }
 
   async getAllProviders() {
-    const providers = await this.providerRepo.getAll();
+    const providers = await this.providerRepo.findProviders();
     return providers;
   }
 
   async getProviderCodes() {
-    return ViberProviderCodes;
+    return ViberProviderCode;
   }
 
   async updateProvider(id: string, provider: Partial<ViberProvider>) {
-    const providerBeforeUpdate = await this.providerRepo.update(id, provider);
+    const providerBeforeUpdate = await this.providerRepo.updateProvider(id, provider);
 
     this.logger.log('Provider updated', {
       before: providerBeforeUpdate,

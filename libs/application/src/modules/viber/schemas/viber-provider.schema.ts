@@ -6,13 +6,13 @@ export type ViberProviderDocument = HydratedDocument<ViberProvider>;
 
 @Schema({ collection: 'viber_providers', autoIndex: false })
 export class ViberProvider {
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   name: string;
 
   /**
    * Support multiple API URLs (Mock/Test/Account URL)
    */
-  @Prop({ required: true })
+  @Prop({ type: [String], required: true })
   urls: string[];
 
   @Prop({ type: String, enum: ViberProviderCode, required: true })

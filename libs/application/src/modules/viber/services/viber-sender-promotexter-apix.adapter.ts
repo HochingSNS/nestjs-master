@@ -1,6 +1,6 @@
 import { PromotexterApi, PromotexterApix } from '@application/integrations/promotexter';
 import { ViberSender } from '../interfaces/viber-sender.port';
-import { ViberOtp, ViberMessage } from '../models/viber-message.model';
+import { ViberOtp, SendViberResult } from '../models/viber-message.model';
 import { ViberAccount } from '../models/viber-account.model';
 
 export class ViberSenderPromotexterApix implements ViberSender {
@@ -17,7 +17,7 @@ export class ViberSenderPromotexterApix implements ViberSender {
     });
   }
 
-  async sendViberOtp(message: ViberOtp): Promise<ViberMessage> {
+  async sendOtp(message: ViberOtp): Promise<SendViberResult> {
     return {
       messageId: '',
       referenceId: '',
